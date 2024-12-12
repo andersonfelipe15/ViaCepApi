@@ -1,0 +1,326 @@
+{
+	"info": {
+		"_postman_id": "bb6b3f0a-00ec-4b4c-8bd6-702b6a2d5964",
+		"name": "VIA CEP",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6633401"
+	},
+	"item": [
+		{
+			"name": "busca cep json",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"id_rua\", pm.response.json().logradouro);\r",
+							"\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.collectionVariables.unset(\"variable_key\");\r",
+							"pm.collectionVariables.unset(\"variable_key\");\r",
+							"\r",
+							"pm.test(\"Contem o campo logradouro\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"logradouro\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Contem a rua Domingos\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Rua Domingos Seguézio\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}91360040/json/",
+					"host": [
+						"{{url}}91360040"
+					],
+					"path": [
+						"json",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "busca cep xml",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Parse o XML da resposta\r",
+							"var parseString = require('xml2js').parseString;\r",
+							"var xmlData = pm.response.text();\r",
+							"\r",
+							"// Extraia o valor da tag <logradouro>\r",
+							"parseString(xmlData, function (err, result) {\r",
+							"    var logradouro = result.xmlcep.logradouro[0];\r",
+							"    pm.environment.set(\"id_rua\", logradouro);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Contem o campo logradouro\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"logradouro\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Contem o campo uf\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"uf\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Contem a rua Domingos\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Rua Domingos Seguézio\");\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}91360040/xml/",
+					"host": [
+						"{{url}}91360040"
+					],
+					"path": [
+						"xml",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "busca cep piped",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Obter a resposta como texto\r",
+							"var responseText = pm.response.text();\r",
+							"\r",
+							"// Divida a resposta em pares chave-valor usando o delimitador \"|\"\r",
+							"var pairs = responseText.split('|');\r",
+							"\r",
+							"// Encontre o valor correspondente à chave \"logradouro\"\r",
+							"var logradouroPair = pairs.find(pair => pair.startsWith('logradouro='));\r",
+							"var logradouro = logradouroPair ? logradouroPair.split('=')[1] : null;\r",
+							"\r",
+							"// Defina a variável de ambiente com o valor extraído\r",
+							"pm.environment.set(\"id_rua\", logradouro);\r",
+							"// Teste para verificar o código de status da resposta\r",
+							"pm.test(\"O codigo de status de resposta é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Teste para verificar o tipo de conteúdo da resposta\r",
+							"pm.test(\"O tipo de conteúdo da resposta é texto/simples\", function () {\r",
+							"    pm.expect(pm.response.headers.get('Content-Type')).to.include('text/plain');\r",
+							"});\r",
+							"\r",
+							"// Teste para verificar a existência de propriedades específicas na resposta\r",
+							"pm.test(\"A resposta contém propriedades esperadas\", function () {\r",
+							"    var responseText = pm.response.text();\r",
+							"    var expectedProperties = [\"cep\", \"logradouro\", \"complemento\", \"unidade\", \"bairro\", \"localidade\", \"uf\", \"estado\", \"regiao\", \"ibge\", \"gia\", \"ddd\", \"siafi\"];\r",
+							"    \r",
+							"    expectedProperties.forEach(function(property) {\r",
+							"        pm.expect(responseText).to.include(property);\r",
+							"    });\r",
+							"});\r",
+							"var template = `\r",
+							"<style type=\"text/css\">\r",
+							"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}\r",
+							"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}\r",
+							"    .tftable tr {background-color:#ffffff;}\r",
+							"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}\r",
+							"    .tftable tr:hover {background-color:#e0ffff;}\r",
+							"</style>\r",
+							"\r",
+							"<table class=\"tftable\" border=\"1\">\r",
+							"    <tr>\r",
+							"        <th>CEP</th>\r",
+							"        <th>Logradouro</th>\r",
+							"        <th>Complemento</th>\r",
+							"        <th>Unidade</th>\r",
+							"        <th>Bairro</th>\r",
+							"        <th>Localidade</th>\r",
+							"        <th>UF</th>\r",
+							"        <th>Estado</th>\r",
+							"        <th>Região</th>\r",
+							"        <th>IBGE</th>\r",
+							"        <th>GIA</th>\r",
+							"        <th>DDD</th>\r",
+							"        <th>SIAFI</th>\r",
+							"    </tr>\r",
+							"    <tr>\r",
+							"        <td>{{response.cep}}</td>\r",
+							"        <td>{{response.logradouro}}</td>\r",
+							"        <td>{{response.complemento}}</td>\r",
+							"        <td>{{response.unidade}}</td>\r",
+							"        <td>{{response.bairro}}</td>\r",
+							"        <td>{{response.localidade}}</td>\r",
+							"        <td>{{response.uf}}</td>\r",
+							"        <td>{{response.estado}}</td>\r",
+							"        <td>{{response.regiao}}</td>\r",
+							"        <td>{{response.ibge}}</td>\r",
+							"        <td>{{response.gia}}</td>\r",
+							"        <td>{{response.ddd}}</td>\r",
+							"        <td>{{response.siafi}}</td>\r",
+							"    </tr>\r",
+							"</table>\r",
+							"`;\r",
+							"\r",
+							"function constructVisualizerPayload() {\r",
+							"    var response = pm.response.text();\r",
+							"    var splitData = response.split('|');\r",
+							"    var visualizerData = {};\r",
+							"    splitData.forEach(function (item) {\r",
+							"        var keyValue = item.split(':');\r",
+							"        visualizerData[keyValue[0]] = keyValue[1];\r",
+							"    });\r",
+							"    return {response: visualizerData};\r",
+							"}\r",
+							"\r",
+							"pm.visualizer.set(template, constructVisualizerPayload());"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}91360040/piped/",
+					"host": [
+						"{{url}}91360040"
+					],
+					"path": [
+						"piped",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "busca cep invalido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Contém o texto de erro na resposta\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"erro\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}00000000/json/",
+					"host": [
+						"{{url}}00000000"
+					],
+					"path": [
+						"json",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "busca cep porto alegre",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"id_rua\", pm.response.json().logradouro);\r",
+							"\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.collectionVariables.unset(\"variable_key\");\r",
+							"pm.collectionVariables.unset(\"variable_key\");\r",
+							"\r",
+							"pm.test(\"Contem o campo logradouro\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"logradouro\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Contem o campo estado\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"estado\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Contem a rua Poli\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Rua Domingos José Poli\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}RS/Porto Alegre/Domingos/json/",
+					"host": [
+						"{{url}}RS"
+					],
+					"path": [
+						"Porto Alegre",
+						"Domingos",
+						"json",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
